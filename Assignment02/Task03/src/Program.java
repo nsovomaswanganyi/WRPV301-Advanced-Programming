@@ -9,6 +9,9 @@ public class Program {
         Scanner scanner = new Scanner(System.in);
 
         ArrayList<Student> students = new ArrayList<>();
+        Student firstStudent = new Student("Nsovo");
+        
+        students.add(firstStudent);
 
         Menu mainMenu = new Menu("Academic Record System");
 
@@ -101,6 +104,53 @@ public class Program {
                 }
         );
 
+        //Here we should be adding marks
+
+        mainMenu.addChoice(
+                new MenuChoice() {
+                    @Override
+                    public String getText() {
+                        return "Add Marks for a module";
+                    }
+
+                    @Override
+                    public void run() {
+                        System.out.print("Enter student name: ");
+                        String studentName = scanner.nextLine();
+                        Student student = findStudent(students, studentName);
+
+                        if (student == null) {
+                            System.out.println("Student not found.");
+                            return;
+                        }
+
+                        System.out.print("Enter module name: ");
+                        String moduleName = scanner.nextLine();
+                        Module module = student.getModule(moduleName);
+
+                        if (module == null) {
+                            System.out.println("Module not found.");
+                            return;
+                        }
+
+                        //I had less time to implement a better strategy for this part
+                        System.out.print("Enter assessment index (starting at 0): ");
+                        int index = Integer.parseInt(scanner.nextLine());
+
+                        if (index < 0 || index >= module.getAssessments().size()) {
+                            System.out.println("Invalid assessment index.");
+                            return;
+                        }
+
+                        System.out.print("Enter grade: ");
+                        double newGrade = Double.parseDouble(scanner.nextLine());
+                        module.getAssessments().get(index).mark.set(newGrade);
+
+                        System.out.println("Assessment mark added.");
+                    }
+                }
+        );
+
         // Update Assessment
         mainMenu.addChoice(
                 new MenuChoice() {
@@ -164,7 +214,7 @@ public class Program {
                 }
         );
 
-        // Run the menu
+
         mainMenu.run();
     }
 

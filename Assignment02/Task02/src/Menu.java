@@ -47,6 +47,7 @@ public class Menu implements MenuChoice{
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a number");
             }
+            System.out.println();
         }
         return choice;
     }
