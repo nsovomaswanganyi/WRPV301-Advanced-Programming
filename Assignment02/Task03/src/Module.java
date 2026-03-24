@@ -34,4 +34,8 @@ public class Module {
         //This is to avoid division by 0 (especially if the list is empty), and i didn't want to use exception handling
         average.set(assessments.isEmpty()? 0 : sum / assessments.size());
     }
+
+    public String getName() { return name; }
+    public ArrayList<Assessment> getAssessments() { return assessments; }
+
 }
