@@ -14,6 +14,7 @@ public class Program {
         numbers.add(3);
         numbers.add(4);
         numbers.add(5);
+        numbers.add(5);
 
         Menu mainMenu = new Menu("Main Menu");
 
@@ -110,8 +111,29 @@ public class Program {
 
                     @Override
                     public void run() {
+                        if (numbers.isEmpty()) {
+                            System.out.println("List is empty.");
+                            return;
+                        }
 
-                        
+                        int mode = numbers.get(0);
+                        int maxCount = 0;
+
+                        // Compare each number with the rest
+                        for (int i = 0; i < numbers.size(); i++) {
+                            int count = 0;
+                            for (int j = 0; j < numbers.size(); j++) {
+                                if (numbers.get(i).equals(numbers.get(j))) {
+                                    count++;
+                                }
+                            }
+                            if (count > maxCount) {
+                                maxCount = count;
+                                mode = numbers.get(i);
+                            }
+                        }
+
+                        System.out.println("Mode: " + mode);
                     }
                 }
         );
