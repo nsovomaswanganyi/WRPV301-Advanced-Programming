@@ -1,6 +1,7 @@
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
 import java.sql.*;
+import java.util.Scanner;
 
 
 public class Program {
@@ -17,12 +18,68 @@ public class Program {
     }
 
     public Program() {
+        connectToDB();
+        processMenu();
 
+    }
+
+    void processMenu() {
+        Menu menu = new Menu("Main menu");
+        menu.addChoice(new MenuChoice() {
+            @Override
+            public String getText() {
+                return "View All Albums";
+            }
+
+            @Override
+            public void run() {
+                try {
+                    displayAlbums();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        menu.run();
+    }
+
+    void displayAlbums() throws SQLException {
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT * FROM Album");
+
+        // Get metadata so we know how many columns there are
+        ResultSetMetaData meta = rs.getMetaData();
+        int columnCount = meta.getColumnCount();
+
+        while (rs.next()) {
+            // Print each column in the row
+            for (int i = 1; i <= columnCount; i++) {
+                String columnName = meta.getColumnName(i);
+                String value = rs.getString(i);
+                System.out.print(columnName + ": " + value + "  ");
+            }
+            System.out.println(); // new line after each album
+        }
+    }
+
+    void addAlbum() {
+
+    }
+
+    void editAlbum() {
+
+    }
+
+    void editSong() {
+
+    }
+    void deleteSong() {
 
     }
 
     public void connectToDB(){
 
+        Scanner scanner = new Scanner(System.in);
         //You may want to remove this
         System.out.println("Establishing connection to database...");
 
@@ -43,15 +100,20 @@ public class Program {
             try {
                 System.out.println("   Locate database to open (using connection string)...");
 
-                String connectionString = "jdbc:jtds:sqlserver://postsql.mandela.ac.za/WRPV301;instance=WRR";
+                String connectionString = "jdbc:jtds:sqlserver://postsql.mandela.ac.za/WRAP301Music;instance=WRR";
                 System.out.println("      Connection string = " + connectionString);
 
-                // create connection to DB, including username & password
-                // NEVER, EVER, include a username and password in your code!!!!
-                con = DriverManager.getConnection(connectionString, "WRPV301User", "WRPV301");
+                System.out.println("Enter username: ");
+                String username = scanner.nextLine();
+                System.out.println("Enter password: ");
+                String password = scanner.nextLine();
+
+                con = DriverManager.getConnection(connectionString, username, password);
 
                 // create statement object for manipulating DB
                 stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+                System.out.println("Connected to database...");
             } catch (Exception e) {
                 System.out.printf("   Unable to connect to DB... '%s'\n", e.getMessage());
             }
