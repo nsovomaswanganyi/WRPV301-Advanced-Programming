@@ -58,7 +58,7 @@ public class MenuBuilderUtil {
 
                 if (element.getTagName().equals("choice")) {
                     String text = element.getAttribute("text");
-                    String action = element.getAttribute("action");
+                    String action = element.getAttribute("method");
 
                     Method method = controller.getClass().getMethod(action);
                     menu.add(text, () -> {
@@ -71,7 +71,7 @@ public class MenuBuilderUtil {
 
                 } else if (element.getTagName().equals("submenu")) {
                     String text = element.getAttribute("text");
-                    String subTitle = element.getAttribute("action"); // submenu title
+                    String subTitle = element.getAttribute("method"); // submenu title
                     Menu subMenu = buildMenu(element, controller, subTitle);
                     menu.add(text, subMenu);
                 }
