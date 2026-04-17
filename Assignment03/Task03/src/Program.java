@@ -18,30 +18,71 @@ public class Program {
     }
 
     public Program() {
+
         connectToDB();
         processMenu();
+        disconnect();
 
     }
 
     void processMenu() {
         Menu menu = new Menu("Main menu");
-        menu.addChoice(new MenuChoice() {
-            @Override
-            public String getText() {
-                return "View All Albums";
-            }
 
-            @Override
+        menu.addChoice(new MenuChoice() {
+            public String getText() { return "View All Albums"; }
+            public void run() { try { displayAlbums(); } catch (SQLException e) { e.printStackTrace(); } }
+        });
+
+
+        menu.addChoice(new MenuChoice() {
+            public String getText() { return "Add New Album"; }
+            public void run() { addAlbum(); }
+        });
+
+
+
+        menu.addChoice(new MenuChoice() {
+            public String getText() { return "Edit Album"; }
+            public void run() { editAlbum(); }
+        });
+        menu.addChoice(new MenuChoice() {
+            public String getText() {
+                return "Add Song"; }
+            public void run() { addSong(); }
+        });
+
+        menu.addChoice(new MenuChoice() {
+            public String getText() { return "Edit Song"; }
+            public void run() { editSong(); }
+        });
+
+        menu.addChoice(new MenuChoice() {
+            public String getText() { return "Delete Song"; }
+            public void run() { deleteSong(); }
+        });
+
+
+        menu.addChoice(new MenuChoice() {
+            public String getText() { return "Query Songs by Artist"; }
+            public void run() { querySongsByArtist(); }
+        });
+        menu.addChoice(new MenuChoice() {
+            public String getText() { return "Query Songs by Title Phrase"; }
+            public void run() { querySongsByTitlePhrase(); }
+        });
+
+        menu.addChoice(new MenuChoice() {
+            public String getText() {
+                return "Query Albums by Title Phrase";
+            }
             public void run() {
-                try {
-                    displayAlbums();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+                queryAlbumsByTitlePhrase();
             }
         });
+
         menu.run();
     }
+
 
     void displayAlbums() throws SQLException {
         Statement stmt = con.createStatement();
@@ -63,19 +104,175 @@ public class Program {
     }
 
     void addAlbum() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter Album Title: ");
+            String title = sc.nextLine();
 
+            PreparedStatement ps = con.prepareStatement("INSERT INTO Album (Title) VALUES (?)");
+            ps.setString(1, title);
+            ps.executeUpdate();
+            System.out.println("Album added successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
 
     void editAlbum() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter Album ID to edit: ");
+            int aid = sc.nextInt(); sc.nextLine();
+            System.out.print("Enter new Album Title: ");
+            String newTitle = sc.nextLine();
 
+            PreparedStatement ps = con.prepareStatement("UPDATE Album SET Title=? WHERE AID=?");
+            ps.setString(1, newTitle);
+            ps.setInt(2, aid);
+            int rows = ps.executeUpdate();
+            System.out.println(rows > 0 ? "Album updated." : "Album not found.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
+    void addSong() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter Album ID: ");
+            int aid = sc.nextInt(); sc.nextLine();
+            System.out.print("Enter Song Title: ");
+            String title = sc.nextLine();
+            System.out.print("Enter Artist: ");
+            String artist = sc.nextLine();
+            System.out.print("Enter Length: ");
+            String length = sc.nextLine();
+
+            PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO Song (AID, Title, Artist, Length) VALUES (?, ?, ?, ?)");
+            ps.setInt(1, aid);
+            ps.setString(2, title);
+            ps.setString(3, artist);
+            ps.setString(4, length);
+            ps.executeUpdate();
+            System.out.println("Song added successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     void editSong() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter Song ID to edit: ");
+            int sid = sc.nextInt(); sc.nextLine();
+            System.out.print("Enter new Song Title: ");
+            String newTitle = sc.nextLine();
 
+            PreparedStatement ps = con.prepareStatement("UPDATE Song SET Title=? WHERE SID=?");
+            ps.setString(1, newTitle);
+            ps.setInt(2, sid);
+            int rows = ps.executeUpdate();
+            System.out.println(rows > 0 ? " Song updated." : "Song not found.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
     void deleteSong() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter Song ID to delete: ");
+            int sid = sc.nextInt();
 
+            PreparedStatement ps = con.prepareStatement("DELETE FROM Song WHERE SID=?");
+            ps.setInt(1, sid);
+            int rows = ps.executeUpdate();
+            System.out.println(rows > 0 ? "Song deleted." : " Song not found.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
+    void querySongsByArtist() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter Artist name: ");
+            String artist = sc.nextLine();
+
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT s.Title, a.Title AS AlbumTitle " +
+                            "FROM Song s JOIN Album a ON s.AID = a.AID " +
+                            "WHERE s.Artist LIKE ?");
+            ps.setString(1, "%" + artist + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                System.out.println("Song: " + rs.getString("Title") +
+                        " | Album: " + rs.getString("AlbumTitle"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void querySongsByTitlePhrase() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter phrase in Song title: ");
+            String phrase = sc.nextLine();
+
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM Song WHERE Title LIKE ?");
+            ps.setString(1, "%" + phrase + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                System.out.println("SID: " + rs.getInt("SID") +
+                        " | Title: " + rs.getString("Title") +
+                        " | Artist: " + rs.getString("Artist"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void queryAlbumsByTitlePhrase() {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter phrase in Album title: ");
+            String phrase = sc.nextLine();
+
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM Album WHERE Title LIKE ?");
+            ps.setString(1, "%" + phrase + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                System.out.println("AID: " + rs.getInt("AID") +
+                        " | Title: " + rs.getString("Title"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void disconnect() {
+        try {
+            if (con != null) {
+                con.close();
+                System.out.println("🔌 Disconnected from database.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     public void connectToDB(){
 
