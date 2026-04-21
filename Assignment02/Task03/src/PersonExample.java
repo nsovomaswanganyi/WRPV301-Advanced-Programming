@@ -46,7 +46,7 @@ public class PersonExample {
         });
 
         bob.name.addListener((name, oldValue,newValue) -> {
-            
+
         });
 // Trigger code -> this should cause the text
 // “Bob’s name changed to Billy Bob” to be displayed on the console
