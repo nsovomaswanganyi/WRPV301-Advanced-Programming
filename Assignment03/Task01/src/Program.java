@@ -15,12 +15,55 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Program {
     static void main() {
-        new Program();
+//        new Program();
+
+
+        boolean [] [] array = new boolean[][]{{true, true}, {true, false}, {false, false}};
+
+        System.out.println(Arrays.toString(calcANDrow(array)));
     }
+
+
+    static boolean [] calcANDrow(boolean [][] array) {
+
+        boolean [] result = new boolean[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            boolean rows = true;
+
+            for (int j = 0; j < array[i].length; j++) {
+                rows &= array[i][j];
+            }
+            result[i] = rows;
+        }
+
+
+        return result;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public Program() {
         try {
